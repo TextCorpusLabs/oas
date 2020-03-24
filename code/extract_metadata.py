@@ -76,7 +76,6 @@ def nct(obj):
     """
     Simple null-conditional macro
     """
-
     if obj is None:
         return None
     elif obj.text is None:
