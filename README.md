@@ -74,6 +74,15 @@ del "d:\oas\*.xml.tar"
 4. [Extract](./code/extract_metadata.py) the metadata.
    This will create a single `metadata.csv` containing some useful information.
    In general this would be used as part of segementation or as part of a MANOVA.
+   Some of the files provide by NIH do not parse.
+   These _incomplete_ files are filtered out of the final folders and noted in `error.metadata.csv`
 ```{shell}
 python extract_metadata.py -in d:/oas/raw -out d:/oas/metadata.csv
+```
+5. [Convert](./code/convert_to_corpus.py) the raw JATS files into the nomal folder corpus format.
+   This will create a text corpus folder at the location I.E. `./corpus` containing 2 sub folders, one for the abstract and one for the body.
+   Some of the files provide by NIH do not parse.
+   These _incomplete_ files are filtered out of the final folders and noted in `error.corpus.csv`
+```{shell}
+python convert_to_corpus.py -in d:/oas/raw -out d:/oas/corpus
 ```
