@@ -54,10 +54,10 @@ def parse_jats_article(file_name):
         xml = file_name.read()
     root = etree.fromstring(xml)
     id = "./front/article-meta/article-id[@pub-id-type='pmc']"
-    abstract = "./front/article-meta/abstract//p"
-    body = "./body//sec/p"
+    abstract = ["./front/article-meta/abstract//p", "./front/article-meta/trans-abstract//p"]
+    body = ["./body//sec/p"]
     id = nct(root.find(id))
-    abstract = extract_paragraphs(root, abstract)
+    abstract = extract_paragraphs(root, abstract)    
     abstract = convert_to_sentences(abstract)
     body = extract_paragraphs(root, body)
     body = convert_to_sentences(body)
@@ -74,9 +74,12 @@ def nct(obj):
     else:
         return obj.text.strip()
 
-def extract_paragraphs(root, xpath):
-    result = [x for x in map(lambda node: ''.join(node.xpath(".//text()")), root.xpath(xpath))]
-    return result
+def extract_paragraphs(root, xpaths):
+    for xpath in xpaths:
+        result = [x for x in map(lambda node: ''.join(node.xpath(".//text()")), root.xpath(xpath))]
+        if len(result) > 0:
+            return result
+    return []
 
 def convert_to_sentences(paragraphs):
     result = [sent_tokenize.tokenize(paragraph) for paragraph in paragraphs]
