@@ -16,7 +16,7 @@ JATS = namedtuple('JATS', 'id abstract body')
 def convert_folder_to_corpus(folder_in, folder_out):
     folder_in = pathlib.Path(folder_in)
     folder_out = pathlib.Path(folder_out)
-    errors_out = folder_out.joinpath('./errors.corpus.csv')
+    errors_out = folder_out.joinpath(f'./{folder_out.stem}.errors.csv')
     create_folder_structure(folder_out)
     errors = []
     i = 1

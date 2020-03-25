@@ -14,7 +14,7 @@ def extract_metadata(folder_in, file_out):
     """
     folder_in = pathlib.Path(folder_in)
     file_out = pathlib.Path(file_out)
-    errors_out = file_out.parent.joinpath('./errors.metadata.csv')
+    errors_out = file_out.parent.joinpath(f'./{file_out.stem}.errors.csv')
     ensure_path(file_out)
     ensure_path(errors_out)
     errors = []
