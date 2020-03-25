@@ -16,7 +16,7 @@ JATS = namedtuple('JATS', 'id abstract body')
 def convert_folder_to_corpus(folder_in, folder_out):
     folder_in = pathlib.Path(folder_in)
     folder_out = pathlib.Path(folder_out)
-    errors_out = folder_out.joinpath('./errors.metadata.csv')
+    errors_out = folder_out.joinpath('./errors.corpus.csv')
     create_folder_structure(folder_out)
     errors = []
     i = 1
@@ -55,7 +55,7 @@ def parse_jats_article(file_name):
     root = etree.fromstring(xml)
     id = "./front/article-meta/article-id[@pub-id-type='pmc']"
     abstract = ["./front/article-meta/abstract//p", "./front/article-meta/trans-abstract//p"]
-    body = ["./body//sec/p"]
+    body = ["./body//sec/p", "./body/p"]
     id = nct(root.find(id))
     abstract = extract_paragraphs(root, abstract)    
     abstract = convert_to_sentences(abstract)
@@ -118,3 +118,4 @@ if __name__ == '__main__':
     print(f'folder in: {args.folder_in}')
     print(f'folder out: {args.folder_out}')
     convert_folder_to_corpus(args.folder_in, args.folder_out)
+    

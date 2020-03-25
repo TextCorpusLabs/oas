@@ -6,7 +6,7 @@ import pathlib
 import progressbar as pb
 
 # declare all the named tuples up front
-JATS = namedtuple('JATS', 'id doi issn journal volume issue year referenceCount title authors')
+JATS = namedtuple('JATS', 'id doi issn journal volume issue year category referenceCount title authors')
 
 def extract_metadata(folder_in, file_out):
     """
@@ -23,14 +23,14 @@ def extract_metadata(folder_in, file_out):
     with pb.ProgressBar(widgets = widgets) as bar:
         with file_out.open('w', encoding = 'utf-8', newline='') as file_out:
             writer = csv.writer(file_out, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_ALL)
-            writer.writerow(['id', 'doi', 'issn', 'journal', 'volume', 'issue', 'year', 'referenceCount', 'title', 'authors'])
+            writer.writerow(['id', 'doi', 'issn', 'journal', 'volume', 'issue', 'year', 'category', 'referenceCount', 'title', 'authors'])
             for file_name in folder_in.iterdir():
                 if file_name.is_file() and file_name.suffix.lower() == '.nxml':
                     bar.update(i)
                     i = i + 1
                     try:
                         jats = parse_jats(file_name)
-                        writer.writerow([jats.id, jats.doi, jats.issn, jats.journal, jats.volume, jats.issue, jats.year, jats.referenceCount, jats.title, jats.authors])
+                        writer.writerow([jats.id, jats.doi, jats.issn, jats.journal, jats.volume, jats.issue, jats.year, jats.category, jats.referenceCount, jats.title, jats.authors])
                     except Exception as ex:
                         errors.append([file_name.stem, str(ex)])
     write_errors(errors_out, errors)
@@ -56,6 +56,7 @@ def parse_jats(file_name):
     doi = "./front/article-meta/article-id[@pub-id-type='doi']"
     issn = './front/journal-meta/issn'
     year = "./front/article-meta/pub-date/year/text()"
+    category = "./front/article-meta/article-categories//subject"
     references = "./back/ref-list/ref"
     title = "./front/article-meta/title-group/article-title//text()"
     authors = "./front/article-meta/contrib-group/contrib/name"
@@ -67,10 +68,11 @@ def parse_jats(file_name):
     doi = nct(root.find(doi))
     issn = ';'.join(map(nct, root.xpath(issn)))
     year = min(map(lambda year: int(year) , root.xpath(year)))
+    category = nct(root.find(category))
     references = root.findall(references)
     title = ' '.join(''.join(root.xpath(title)).split())
     authors = ';'.join(map(extract_author_name, root.xpath(authors)))
-    return JATS(id, doi, issn, journal, volume, issue, year, len(references), title, authors)
+    return JATS(id, doi, issn, journal, volume, issue, year, category, len(references), title, authors)
 
 def nct(obj):
     """
