@@ -1,19 +1,19 @@
-from argparse import ArgumentParser
 import pathlib
 import sys
 import wget
+from argparse import ArgumentParser
+from typeguard import typechecked
 
-def download_oas(dest_folder):
+@typechecked
+def download_oas(dest_folder: pathlib.Path) -> None:
     """
     Downloads all the files associated with PMC's OAS data dump
+
     Parameters
     ----------
     dest_folder : str
         The destination location to use when saving the files
     """
-
-    dest_folder = pathlib.Path(dest_folder)
-    dest_folder.mkdir(parents = True, exist_ok = True)
 
     root_url = 'ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/'
     file_name = wget.download(root_url)
@@ -34,9 +34,22 @@ def download_oas(dest_folder):
         curr_file = str(dest_folder.joinpath(file))
         wget.download(curr_url, curr_file)
 
+@typechecked
+def writable_folder(folder_path: str) -> pathlib.Path:
+    folder_path = pathlib.Path(folder_path).resolve()
+    if not folder_path.exists():
+        folder_path.mkdir(parents = True)
+    elif not folder_path.is_dir():
+        raise NotADirectoryError(str(folder_path))
+    return folder_path
+
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('-dest', '--dest-folder', help = 'Folder to contain the raw', required = True)
+    parser.add_argument(
+        '-dest',
+        help = 'Folder to contain the raw',
+        type = writable_folder,
+        required = True)
     args = parser.parse_args()
-    print(f'folder in: {args.dest_folder}')
-    download_oas(args.dest_folder)
+    print(f'folder in: {args.dest}')
+    download_oas(args.dest)
