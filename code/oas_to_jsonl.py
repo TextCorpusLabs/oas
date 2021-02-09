@@ -45,7 +45,6 @@ def _collect_articles(folder_in: pathlib.Path) -> t.Iterator[str]:
             for file_name in sub_folder.iterdir():
                 if file_name.is_file() and file_name.stem.upper().startswith('PMC') and file_name.suffix.upper() == '.NXML':
                     yield str(file_name)
-                        break
 
 def _parse_article_safe(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
     try:
