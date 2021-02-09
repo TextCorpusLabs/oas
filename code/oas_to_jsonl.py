@@ -27,7 +27,7 @@ def oas_to_jsonl(folder_in: pathlib.Path, jsonl_out: pathlib.Path, sub_process_c
 
     worker = mpb.EPTS(
         extract = _collect_articles, extract_args = (folder_in),
-        transform = _parse_article,
+        transform = _parse_article_safe,
         save = _save_articles_to_jsonl, save_args = (jsonl_out),
         worker_count = sub_process_count,
         show_progress = True)
@@ -45,6 +45,14 @@ def _collect_articles(folder_in: pathlib.Path) -> t.Iterator[str]:
             for file_name in sub_folder.iterdir():
                 if file_name.is_file() and file_name.stem.upper().startswith('PMC') and file_name.suffix.upper() == '.NXML':
                     yield str(file_name)
+                        break
+
+def _parse_article_safe(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
+    try:
+        return _parse_article(article)
+    except:
+        print(article)
+        return {}
 
 @typechecked
 def _parse_article(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
@@ -54,7 +62,7 @@ def _parse_article(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
 
     with open(article, 'r', encoding = 'utf-8') as fp:
         xml = fp.read()
-    root = etree.fromstring(xml)
+    root = _parse_xml(xml)
 
     id = "./front/article-meta/article-id[@pub-id-type='pmc']"
     journal = "./front/journal-meta//journal-title"
@@ -86,6 +94,18 @@ def _parse_article(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
     json['referenceCounts'] = len(root.findall(references))
 
     return _clean_dict(json)
+
+@typechecked
+def _parse_xml(xml: str) -> etree.Element:
+    """
+    Most of the time the JATS XML will be missing the encoding declaration (<?xml version="1.0" encoding="UTF-8"?>).
+    This is desirable as `etree.fromstring()` does not like it.
+    When it is included, case it to bytes first then continue processing per https://stackoverflow.com/questions/57833080
+    """
+    try:
+        return etree.fromstring(xml)
+    except ValueError:
+        return etree.fromstring(bytes(xml, encoding = 'utf8'))
 
 @typechecked
 def _save_articles_to_jsonl(results: t.Iterator[dict], jsonl_out: pathlib.Path) -> None:
