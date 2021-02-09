@@ -40,6 +40,13 @@ python download_oas.py -dest d:/oas/gz
 del "d:/oas/gz/*.gz"
 del "d:/oas/tar/*.tar"
 ```
+4. [Convert](./code/oas_to_jsonl.py) the raw JATS files into a single JSONL file.
+   There is an optional parameter `-spc` that defaults to 1.
+   This allows for tuning on multi core machines.
+   On my i7-6700k w/64GB RAM, the best value seems to be `-spc 4`
+```{ps1}
+python oas_to_jsonl.py -in d:/oas/raw -out d:/oas/corpus.jsonl
+```
 4. [Extract](./code/extract_metadata.py) the metadata.
    This will create a single `metadata.csv` containing some useful information.
    In general this would be used as part of segementation or as part of a MANOVA.
@@ -47,11 +54,4 @@ del "d:/oas/tar/*.tar"
    These _incomplete_ files are filtered out of the final folders and noted in `{{file-out}}error.csv`
 ```{ps1}
 python extract_metadata.py -in d:/oas/raw -out d:/oas/metadata.csv
-```
-5. [Convert](./code/convert_to_corpus.py) the raw JATS files into the nomal folder corpus format.
-   This will create a text corpus folder at the location I.E. `./corpus` containing 2 sub folders, one for the abstract and one for the body.
-   Some of the files provide by NIH do not parse.
-   These _incomplete_ files are filtered out of the final folders and noted in `{{folder-out}}.error.csv`
-```{ps1}
-python convert_to_corpus.py -in d:/oas/raw -out d:/oas/corpus
 ```
