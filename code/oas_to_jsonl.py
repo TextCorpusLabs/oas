@@ -107,7 +107,7 @@ def _parse_xml(xml: str) -> etree.Element:
         return etree.fromstring(bytes(xml, encoding = 'utf8'))
 
 @typechecked
-def _save_articles_to_jsonl(results: t.Iterator[dict], jsonl_out: pathlib.Path) -> None:
+def _save_articles_to_jsonl(results: t.Iterator[t.Dict[str, t.Union[int, str, t.List[str]]]], jsonl_out: pathlib.Path) -> None:
     """
     Writes the relevant data to disk
     """
