@@ -29,29 +29,37 @@ If you use a different shell, your syntax will be different.
 
 1. Clone this repo then open a shell to the `~/code` directory.
 2. [Retrieve](./code/download_oas.py) the dataset.
-```{ps1}
-python download_oas.py -dest d:/oas/gz
-``` 
+   ```{ps1}
+   python download_oas.py -dest d:/oas/gz
+   ``` 
 3. Extract the data in-place.
    This needs done twice due to the `*.tar.gz` compression.
-```{ps1}
-. "C:/Program Files/7-Zip/7z.exe" x -od:/oas/tar "d:/oas/gz/*.gz"
-. "C:/Program Files/7-Zip/7z.exe" x -aos -od:/oas/raw "d:/oas/tar/*.tar"
-del "d:/oas/gz/*.gz"
-del "d:/oas/tar/*.tar"
-```
+   ```{ps1}
+   . "C:/Program Files/7-Zip/7z.exe" x -od:/oas/tar "d:/oas/gz/*.gz"
+   . "C:/Program Files/7-Zip/7z.exe" x -aos -od:/oas/raw "d:/oas/tar/*.tar"
+   del "d:/oas/gz/*.gz"
+   del "d:/oas/tar/*.tar"
+   ```
 4. [Convert](./code/oas_to_jsonl.py) the raw JATS files into a single JSONL file.
    There is an optional parameter `-spc` that defaults to 1.
    This allows for tuning on multi core machines.
    On my i7-6700k w/64GB RAM, the best value seems to be `-spc 4`
-```{ps1}
-python oas_to_jsonl.py -in d:/oas/raw -out d:/oas/corpus.jsonl
-```
-4. [Extract](./code/extract_metadata.py) the metadata.
+   ```{ps1}
+   python oas_to_jsonl.py -in d:/oas/raw -out d:/oas/corpus.jsonl
+   ```
+5. [Tokenize](./code/tokenize_oas_jsonl.py) the article text.
+   This will create a file containing all the tokenized documents.
+   There is an optional parameter `-spc` that defaults to 1.
+   This allows for tuning on multi core machines.
+   On my i7-6700k w/64GB RAM, the best value seems to be `-spc 8`
+   ```{ps1}
+   python tokenize_oas_jsonl.py -in d:/oas/corpus.jsonl -out d:/oas/corpus.tokenized.jsonl
+   ```
+6. [Extract](./code/extract_metadata.py) the metadata.
    This will create a single `metadata.csv` containing some useful information.
    In general this would be used as part of segementation or as part of a MANOVA.
    Some of the files provide by NIH do not parse.
    These _incomplete_ files are filtered out of the final folders and noted in `{{file-out}}error.csv`
-```{ps1}
-python extract_metadata.py -in d:/oas/raw -out d:/oas/metadata.csv
-```
+   ```{ps1}
+   python extract_metadata.py -in d:/oas/raw -out d:/oas/metadata.csv
+   ```
