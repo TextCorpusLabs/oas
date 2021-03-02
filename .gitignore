@@ -1,2 +1,5 @@
-# WinMerge
+# IDE/tools
+.vscode
+__pycache__
+debug.log
 *.bak
