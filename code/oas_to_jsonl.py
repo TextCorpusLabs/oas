@@ -104,14 +104,14 @@ def _parse_xml(xml: str) -> etree.Element:
     try:
         return etree.fromstring(xml)
     except ValueError:
-        return etree.fromstring(bytes(xml, encoding = 'utf8'))
+        return etree.fromstring(bytes(xml, encoding = 'utf-8'))
 
 @typechecked
 def _save_articles_to_jsonl(results: t.Iterator[t.Dict[str, t.Union[int, str, t.List[str]]]], jsonl_out: pathlib.Path) -> None:
     """
     Writes the relevant data to disk
     """
-    with open(jsonl_out, 'w', encoding = 'utf-16') as fp:
+    with open(jsonl_out, 'w', encoding = 'utf-8') as fp:
         with jl.Writer(fp, compact = True, sort_keys = True) as writer:
             for item in results:
                 if 'body' in item and len(item['body']) > 0:

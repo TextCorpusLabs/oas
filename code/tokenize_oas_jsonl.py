@@ -40,7 +40,7 @@ def tokenize_oas_jsonl(jsonl_in: pathlib.Path, jsonl_out: pathlib.Path, sub_proc
 
 @typechecked
 def _collect_articles(jsonl_in: pathlib.Path) -> t.Iterator[t.Dict[str, t.Union[int, str, t.List[str]]]]:
-    with open(jsonl_in, 'r', encoding = 'utf-16') as fp:
+    with open(jsonl_in, 'r', encoding = 'utf-8') as fp:
         with jl.Reader(fp) as reader:
             for item in reader:
                 yield item
@@ -48,8 +48,7 @@ def _collect_articles(jsonl_in: pathlib.Path) -> t.Iterator[t.Dict[str, t.Union[
 @typechecked
 def _tokenize_article(article: t.Dict[str, t.Union[int, str, t.List[str]]]) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
     json = {}
-    for key, value in article.items():
-        json[key] = value
+    json['id'] = article['id']
 
     if 'abstract' in article:
         lines = article['abstract']
@@ -85,7 +84,7 @@ def _save_articles_to_jsonl(results: t.Iterator[t.Dict[str, t.Union[int, str, t.
     """
     Writes the relevant data to disk
     """
-    with open(jsonl_out, 'w', encoding = 'utf-16') as fp:
+    with open(jsonl_out, 'w', encoding = 'utf-8') as fp:
         with jl.Writer(fp, compact = True, sort_keys = True) as writer:
             for item in results:
                 writer.write(item)
