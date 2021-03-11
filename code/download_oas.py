@@ -51,5 +51,7 @@ if __name__ == '__main__':
         type = writable_folder,
         required = True)
     args = parser.parse_args()
+    print(' --- download_oas ---')
     print(f'folder in: {args.dest}')
+    print(' ---------')
     download_oas(args.dest)

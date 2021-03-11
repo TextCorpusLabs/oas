@@ -106,8 +106,10 @@ if __name__ == '__main__':
         help = 'The number of sub processes used to transformation from in to out formats',
         type = int,
         default = 1)
-    args = parser.parse_args()    
+    args = parser.parse_args()
+    print(' --- tokenize_oas_jsonl ---')
     print(f'jsonl in: {args.jsonl_in}')
     print(f'jsonl out: {args.jsonl_out}')
     print(f'sub process count: {args.sub_process_count}')
+    print(' ---------')
     tokenize_oas_jsonl(args.jsonl_in, args.jsonl_out, args.sub_process_count)

@@ -219,7 +219,9 @@ if __name__ == '__main__':
         type = int,
         default = 1)
     args = parser.parse_args()
+    print(' --- oas_to_jsonl ---')
     print(f'folder in: {args.folder_in}')
     print(f'jsonl out: {args.jsonl_out}')
     print(f'sub process count: {args.sub_process_count}')
+    print(' ---------')
     oas_to_jsonl(args.folder_in, args.jsonl_out, args.sub_process_count)

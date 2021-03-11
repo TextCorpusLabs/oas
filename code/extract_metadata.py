@@ -111,6 +111,8 @@ if __name__ == '__main__':
     parser.add_argument('-in', '--folder-in', help = 'Folder containing the raw JSON files', required = True)
     parser.add_argument('-out', '--file-out', help = 'File to contain the metadata', required = True)
     args = parser.parse_args()
+    print(' --- extract_metadata ---')
     print(f'folder in: {args.folder_in}')
     print(f'file out: {args.file_out}')
+    print(' ---------')
     extract_metadata(args.folder_in, args.file_out)
