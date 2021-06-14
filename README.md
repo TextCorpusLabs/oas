@@ -57,7 +57,7 @@ If you use a different shell, your syntax will be different.
    ```
 6. [Extract](./code/extract_metadata.py) the metadata.
    This will create a single `metadata.csv` containing some useful information.
-   In general this would be used as part of segementation or as part of a MANOVA.
+   In general this would be used as part of segmentation or as part of a MANOVA.
    Some of the files provide by NIH do not parse.
    These _incomplete_ files are filtered out of the final folders and noted in `{{file-out}}error.csv`
    ```{ps1}
