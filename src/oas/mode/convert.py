@@ -1,64 +1,54 @@
 import jsonlines as jl
-import mp_boilerplate as mpb
 import pathlib
+import progressbar as pb
 import typing as t
-from argparse import ArgumentParser
 from lxml import etree
-from typeguard import typechecked
 
-@typechecked
-def oas_to_jsonl(folder_in: pathlib.Path, jsonl_out: pathlib.Path, sub_process_count: int) -> None:
+Article = t.Dict[str, t.Union[int, str, t.List[str]]]
+
+def main(source: pathlib.Path, dest: pathlib.Path, dest_pattern: str, count: int) -> None:
     """
     Converts the PMC OAS folders to a JSONL file containing all the articles minus any markup.
     Articles that contain no body are removed.
 
     Parameters
     ----------
-    folder_in : pathlib.Path
-        The root of the JATS folders
-    jsonl_out : pathlib.Path
-        JSONL containing all the wikimedia articles
-    sub_process_count : int
-        The number of sub processes used to transformation from in to out formats
+    source : pathlib.Path
+        The root folder of the folders containing JATS files
+    dest : pathlib.Path
+        The folder to store the converted JSON files
+    dest_pattern: str
+        The format of the JSON file name
+    count : int
+        The number of JATS files in a single JSON file
     """
+    article_paths = _collect_articles(source)
+    articles = (_parse_article_safe(path) for path in article_paths)
+    articles = _save_articles(dest, dest_pattern, count, articles)
+    articles = _progress_bar(articles)
+    for _ in articles: pass
 
-    if jsonl_out.exists():
-        jsonl_out.unlink()
-
-    worker = mpb.EPTS(
-        extract = _collect_articles, extract_args = (folder_in),
-        transform = _parse_article_safe,
-        save = _save_articles_to_jsonl, save_args = (jsonl_out),
-        worker_count = sub_process_count,
-        show_progress = True)
-    worker.start()
-    worker.join()
-
-@typechecked
 def _collect_articles(folder_in: pathlib.Path) -> t.Iterator[str]:
     """
     Gets the full path of the article
     """
-
     for sub_folder in folder_in.iterdir():
         if sub_folder.is_dir():
             for file_name in sub_folder.iterdir():
-                if file_name.is_file() and file_name.stem.upper().startswith('PMC') and file_name.suffix.upper() == '.NXML':
+                if file_name.is_file() and file_name.stem.upper().startswith('PMC') and file_name.suffix.upper() == '.XML':
                     yield str(file_name)
 
-def _parse_article_safe(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
+def _parse_article_safe(article: str) -> Article:
     try:
         return _parse_article(article)
     except:
         print(article)
         return {}
 
-@typechecked
-def _parse_article(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
+def _parse_article(article: str) -> Article:
     """
     Gets the parts of the JATS XML we care about
     """
-
     with open(article, 'r', encoding = 'utf-8') as fp:
         xml = fp.read()
     root = _parse_xml(xml)
@@ -92,9 +82,10 @@ def _parse_article(article: str) -> t.Dict[str, t.Union[int, str, t.List[str]]]:
     json['body'] = _ncls(_extract_paragraphs(root, body))
     json['referenceCounts'] = len(root.findall(references))
 
-    return _clean_dict(json)
+    json = { key: value for key, value in json.items() if value is not None }
 
-@typechecked
+    return json
+
 def _parse_xml(xml: str) -> etree.Element:
     """
     Most of the time the JATS XML will be missing the encoding declaration (<?xml version="1.0" encoding="UTF-8"?>).
@@ -106,18 +97,6 @@ def _parse_xml(xml: str) -> etree.Element:
     except ValueError:
         return etree.fromstring(bytes(xml, encoding = 'utf-8'))
 
-@typechecked
-def _save_articles_to_jsonl(results: t.Iterator[t.Dict[str, t.Union[int, str, t.List[str]]]], jsonl_out: pathlib.Path) -> None:
-    """
-    Writes the relevant data to disk
-    """
-    with open(jsonl_out, 'w', encoding = 'utf-8') as fp:
-        with jl.Writer(fp, compact = True, sort_keys = True) as writer:
-            for item in results:
-                if 'body' in item and len(item['body']) > 0:
-                    writer.write(item)
-
-@typechecked
 def _nct(obj: etree.Element) -> t.Optional[str]:
     """
     Simple null-conditional macro
@@ -129,7 +108,6 @@ def _nct(obj: etree.Element) -> t.Optional[str]:
     else:
         return obj.text.strip()
 
-@typechecked
 def _ncs(txt: t.Optional[str]) -> t.Optional[str]:
     """
     Simple null-conditional macro
@@ -143,7 +121,6 @@ def _ncs(txt: t.Optional[str]) -> t.Optional[str]:
         else:
             return txt
 
-@typechecked
 def _ncls(list_: t.Optional[t.List[str]]) -> t.Optional[t.List[str]]:
     """
     Simple null-conditional macro
@@ -156,12 +133,10 @@ def _ncls(list_: t.Optional[t.List[str]]) -> t.Optional[t.List[str]]:
         else:
             return list_
 
-@typechecked
 def _extract_author_name(node: etree.Element) -> str:
     """
     gets the author name in the expected format
     """
-
     given = node.xpath("./given-names/text()")
     sur = node.xpath("./surname/text()")
 
@@ -172,7 +147,6 @@ def _extract_author_name(node: etree.Element) -> str:
     
     return full if len(full) > 3 else '???'
 
-@typechecked
 def _extract_paragraphs(root: etree.Element, xpaths: t.List[str]) -> t.List[str]:
     """
     Extracts paragraphs for the given xpath
@@ -190,38 +164,39 @@ def _extract_paragraphs(root: etree.Element, xpaths: t.List[str]) -> t.List[str]
             return result
     return []
 
-@typechecked
-def _clean_dict(dict_: t.Dict[str, t.Any]) -> t.Dict[str, t.Any]:
+def _save_articles(folder_out: pathlib.Path, pattern: str, count: int, articles: t.Iterator[Article]) -> None:
     """
-    Removes dictionary entries where item/value is any/None
+    Writes the relevant data to disk
     """
-    result = {}
-    for key,value in dict_.items():
-        if value is not None:
-            result[key] = value
-    return result
+    fp = None
+    writer: jl.Writer = None
+    fp_i = 0
+    fp_articles = 0
+    for article in articles:
+        if fp is None:
+            fp_name = folder_out.joinpath(pattern.format(id = fp_i))
+            fp = open(fp_name, 'w', encoding = 'utf-8')
+            writer = jl.Writer(fp, compact = True, sort_keys = True)
+            fp_articles = 0
+        if 'body' in article and len(article['body']) > 0:
+            writer.write(article)
+            fp_articles = fp_articles + 1
+        if fp_articles >= count:
+            writer.close()
+            fp.close()
+            writer = None
+            fp = None
+            fp_i = fp_i + 1
+        yield article
+    if fp is not None:
+        writer.close()
+        fp.close()
 
-if __name__ == '__main__':
-    parser = ArgumentParser()
-    parser.add_argument(
-        '-in', '--folder-in',
-        help = 'Folder containing the raw JATS files',
-        type = pathlib.Path,
-        required = True)
-    parser.add_argument(
-        '-out', '--jsonl-out',
-        help = 'JSONL file containing all the articles',
-        type = pathlib.Path,
-        required = True)
-    parser.add_argument(
-        '-spc', '--sub-process-count',
-        help = 'The number of sub processes used to transformation from in to out formats',
-        type = int,
-        default = 1)
-    args = parser.parse_args()
-    print(' --- oas_to_jsonl ---')
-    print(f'folder in: {args.folder_in}')
-    print(f'jsonl out: {args.jsonl_out}')
-    print(f'sub process count: {args.sub_process_count}')
-    print(' ---------')
-    oas_to_jsonl(args.folder_in, args.jsonl_out, args.sub_process_count)
+def _progress_bar(articles: t.Iterable[Article]) -> t.Iterator[Article]:
+    bar_i = 0
+    widgets = ['Processing Articles # ', pb.Counter(), ' ', pb.Timer(), ' ', pb.BouncingBar(marker = '.', left = '[', right = ']')]
+    with pb.ProgressBar(widgets = widgets) as bar:
+        for article in articles:
+            bar_i = bar_i + 1
+            bar.update(bar_i)
+            yield article

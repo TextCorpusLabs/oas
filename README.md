@@ -2,11 +2,27 @@
 
 ![Python](https://img.shields.io/badge/python-3.x-blue.svg)
 ![MIT license](https://img.shields.io/badge/License-MIT-green.svg)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-2022.09.27-success.svg)
 
 The [National Institutes of Health](https://nih.gov) has provided an excelent [data source](https://www.ncbi.nlm.nih.gov/pmc/tools/textmining/) for text mining.
 Not only does it cover Medical journals, but other ones from mathmatics to chemestry.
 The purpose of this repo is to convert the PMC Open Access Subset from the given format into the normal text corpus format.
 I.E. one document per file, one sentence per line, pargraphs have a blank line between them.
+
+
+
+# Operation
+
+## Install
+
+You can install the package using the following steps:
+
+1. `pip` install using an _admin_ prompt.
+   ```{ps1}
+   pip uninstall oas
+   pip install -v git+https://github.com/TextCorpusLabs/oas.git
+   ```
+
 
 # Prerequisites
 
@@ -23,7 +39,7 @@ The below document describes how to recreate the text corpus.
 It assumes that a particular path structure will be used, but the commands can be modified to target a different directory structure without changing the code.
 For the target folder, make sure you have a _lot_ of space.
 [This page](ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/) lists the current dumps.
-They files seem to be on some form of continious rolling update.
+They files seem to be on some form of continuous rolling update.
 **Note:** The shell syntax is PowerShell.
 If you use a different shell, your syntax will be different. 
 
@@ -63,3 +79,47 @@ If you use a different shell, your syntax will be different.
    ```{ps1}
    python extract_metadata.py -in d:/oas/raw -out d:/oas/metadata.csv
    ```
+
+# Development
+
+## Prerequisites
+
+Install the required modules for each of the repositories.
+
+1. Clone this repository then open an _Admin_ shell to the `~/` directory.
+2. Install the required modules.
+   ```{shell}
+   pip uninstall oas
+   pip install -e c:/repos/TextCorpusLabs/oas
+   ```
+3. Setup the `~/.vscode/launch.json` file (VS Code only)
+   1. Click the "Run and Debug Charm"
+   2. Click the "create a launch.json file" link
+   3. Select "Python"
+   4. Select "module" and enter _oas_
+   5. Select one of the following modes and add the below `args` to the launch.json file.
+      The `args` node should be a sibling of the `module` node.
+      They may need to be changed for your pathing.
+      1. Download
+         ```{json}
+         "args" : [
+           "download",
+           "-dest", "d:/oas/gz"]
+         ```
+      2. Conversion
+         ```{json}
+         "args" : [
+           "convert",
+           "-source", "d:/oas/raw",
+           "-dest", "d:/oas/conv",
+           "-dest_pattern", "corpus.{id:02}.jsonl",
+           "-count", "500000"]
+         ```
+      3. Tokenize
+         ```{json}
+         "args" : [
+           "tokenize",
+           "-source", "d:/oas/raw",
+           "-dest", "d:/oas/tok",
+           "-dest_pattern", "{name}.tokenized.jsonl"]
+         ```

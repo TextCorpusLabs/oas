@@ -1,5 +1,10 @@
 # IDE/tools
-.vscode
 __pycache__
-debug.log
+.vscode
 *.bak
+
+# Build
+/build
+/dist
+/typings
+*.egg-info
