@@ -35,10 +35,11 @@ If you use a different shell, your syntax will be different.
 3. Extract the data in-place.
    This needs done twice due to the `*.tar.gz` compression.
    ```{ps1}
-   . "C:/Program Files/7-Zip/7z.exe" x -od:/oas/tar "d:/oas/gz/*.gz"
-   . "C:/Program Files/7-Zip/7z.exe" x -aos -od:/oas/raw "d:/oas/tar/*.tar"
-   del "d:/oas/gz/*.gz"
-   del "d:/oas/tar/*.tar"
+   $7z = 'C:/Program Files/7-Zip/7z.exe'
+   . $7z x -od:/oas/tar "d:/oas/gz/*.gz"
+   . $7z x -od:/oas/raw "d:/oas/tar/*.tar"
+   rm -r -path "d:/oas/gz/*.gz"
+   rm -r -path "d:/oas/tar/*.tar"
    ```
 4. [Convert](./code/oas_to_jsonl.py) the raw JATS files into a single JSONL file.
    There is an optional parameter `-spc` that defaults to 1.
