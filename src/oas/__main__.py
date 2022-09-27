@@ -6,13 +6,13 @@ from oas.mode import convert, download, tokenize
 def main() -> None:
     parser = ArgumentParser(prog = 'oas', description = "Tools to work with PMC's OAS data")
     subparsers = parser.add_subparsers(help = 'sub-commands')
-    download_parser(subparsers.add_parser('download', help = "Downloads all files associated with PMC's OAS data dump"))
-    convert_parser(subparsers.add_parser('convert', help = "Converts PMC's OAS folders to a JSONL file containing all the articles minus any markup"))
+    download_parser(subparsers.add_parser('download', help = "Download all files associated with PMC's OAS data dump"))
+    convert_parser(subparsers.add_parser('convert', help = "Convert PMC's OAS folders to a JSONL file containing all the articles minus any markup"))
     tokenize_parser(subparsers.add_parser('tokenize', help = "Tokenize JSON files using a modified Punkt/TreeBank processor"))
     args = parser.parse_args()
 
     if args.function == download:
-        print('Not currently working. PMC changed their format.')
+        print('TODO: PMC changed their format.')
         #args.function(args.dest)
     elif args.function == convert:
         args.function(args.source, args.dest, args.dest_pattern, args.count)

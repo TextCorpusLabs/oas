@@ -156,7 +156,7 @@ def _extract_paragraphs(root: etree.Element, xpaths: t.List[str]) -> t.List[str]
     root: etree.Element
         The document root
     xpaths: list[str]
-        The list of posible locations
+        The list of possible locations
     """
     for xpath in xpaths:
         result = [x for x in map(lambda node: ''.join(node.xpath(".//text()")), root.xpath(xpath))]
