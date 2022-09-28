@@ -29,8 +29,8 @@ def download_parser(parser: ArgumentParser) -> None:
 def convert_parser(parser: ArgumentParser) -> None:
     parser.add_argument('-source', type = ensure_folder, required = True, help = 'The root folder of the folders containing JATS files')
     parser.add_argument('-dest', type = ensure_folder, required = True, help = 'The folder to store the converted JSON files')
-    parser.add_argument('-dest_pattern',  type = str, default = 'oas.{id:02}.jsonl', help = 'The format of the JSON file name')
-    parser.add_argument('-count', type = int, default = 100000, help = 'The number of JATS files in a single JSON file')
+    parser.add_argument('-dest_pattern',  type = str, default = 'oas.{id:03}.jsonl', help = 'The format of the JSON file name')
+    parser.add_argument('-count', type = int, default = 25000, help = 'The number of JATS files in a single JSON file')
     parser.set_defaults(function = convert)
 
 def tokenize_parser(parser: ArgumentParser) -> None:
