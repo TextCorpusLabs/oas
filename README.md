@@ -49,10 +49,10 @@ You can run the package in the following ways:
    ```
    The following are optional parameters
    * `dest_pattern` is the format of the JSON file name.
-     It defaults to `corpus.{id:02}.jsonl`
+     It defaults to `oas.{id:02}.jsonl`
    * `count` is the number of JATS files in a single JSON file.
      This is useful to prevent any one single file from exploding in size.
-     The default is `500000`
+     The default is `100000`
 3. Tokenize JSON files using a modified Punkt/TreeBank processor.
    This will create one tokenized file per one base file
    ```{ps1}
@@ -94,8 +94,8 @@ Install the required modules for each of the repositories.
            "convert",
            "-source", "d:/oas/raw",
            "-dest", "d:/oas/conv",
-           "-dest_pattern", "corpus.{id:02}.jsonl",
-           "-count", "500000"]
+           "-dest_pattern", "oas.{id:02}.jsonl",
+           "-count", "100000"]
          ```
       3. Tokenize
          ```{json}
