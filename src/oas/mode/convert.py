@@ -165,7 +165,7 @@ def _extract_paragraphs(root: etree.Element, xpaths: t.List[str]) -> t.List[str]
             return result
     return []
 
-def _save_articles(folder_out: pathlib.Path, pattern: str, count: int, articles: t.Iterator[Article]) -> None:
+def _save_articles(folder_out: pathlib.Path, pattern: str, count: int, articles: t.Iterator[Article]) -> t.Iterator[Article]:
     """
     Writes the relevant data to disk
     """
