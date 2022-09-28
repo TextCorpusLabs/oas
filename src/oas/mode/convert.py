@@ -25,7 +25,7 @@ def main(source: pathlib.Path, dest: pathlib.Path, dest_pattern: str, count: int
     article_paths = _collect_articles(source)
     articles = (_parse_article_safe(path) for path in article_paths)
     articles = _save_articles(dest, dest_pattern, count, articles)
-    articles = _progress_bar(articles)
+    articles = _progress_bar(articles, int(count/100))
     for _ in articles: pass
 
 def _collect_articles(folder_in: pathlib.Path) -> t.Iterator[str]:
@@ -181,22 +181,24 @@ def _save_articles(folder_out: pathlib.Path, pattern: str, count: int, articles:
         if 'body' in article and len(article['body']) > 0:
             writer.write(article)
             fp_articles = fp_articles + 1
+            yield article
         if fp_articles >= count:
             writer.close()
             fp.close()
             writer = None
             fp = None
             fp_i = fp_i + 1
-        yield article
     if fp is not None:
         writer.close()
         fp.close()
 
-def _progress_bar(articles: t.Iterable[Article]) -> t.Iterator[Article]:
+def _progress_bar(articles: t.Iterable[Article], update_freq: int) -> t.Iterator[Article]:
     bar_i = 0
     widgets = ['Processing Articles # ', pb.Counter(), ' ', pb.Timer(), ' ', pb.BouncingBar(marker = '.', left = '[', right = ']')]
     with pb.ProgressBar(widgets = widgets) as bar:
         for article in articles:
             bar_i = bar_i + 1
-            bar.update(bar_i)
+            if bar_i % update_freq == 0:
+                bar.update(bar_i)
             yield article
+        bar.update(bar_i)
