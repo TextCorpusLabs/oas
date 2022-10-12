@@ -24,7 +24,7 @@ You can install the package using the following steps:
 1. `pip` install using an _admin_ prompt.
    ```{ps1}
    pip uninstall oas
-   pip install -v git+https://github.com/TextCorpusLabs/oas.git
+   python -OO -m pip install -v git+https://github.com/TextCorpusLabs/oas.git
    python -c "import nltk;nltk.download('punkt')"
    ```
 
