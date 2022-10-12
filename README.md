@@ -2,7 +2,7 @@
 
 ![Python](https://img.shields.io/badge/python-3.x-blue.svg)
 ![MIT license](https://img.shields.io/badge/License-MIT-green.svg)
-![Last Updated](https://img.shields.io/badge/Last%20Updated-2022.09.27-success.svg)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-2022.10.12-success.svg)
 
 The [National Institutes of Health](https://nih.gov) has provided an excellent [data source](https://www.ncbi.nlm.nih.gov/pmc/tools/textmining/) for text mining.
 Not only does it cover Medical journals, but other ones from mathematics to chemistry.
