@@ -2,18 +2,19 @@
 
 ![Python](https://img.shields.io/badge/python-3.x-blue.svg)
 ![MIT license](https://img.shields.io/badge/License-MIT-green.svg)
-![Last Updated](https://img.shields.io/badge/Last%20Updated-2022.10.12-success.svg)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-2023.01.11-success.svg)
 
 The [National Institutes of Health](https://nih.gov) has provided an excellent [data source](https://www.ncbi.nlm.nih.gov/pmc/tools/textmining/) for text mining.
 Not only does it cover Medical journals, but other ones from mathematics to chemistry.
 The purpose of this repo is to convert the PMC Open Access Subset from the given format into the text corpus format we use.
 I.E.
 
-* The full corpus consisting of one or more JSONL(ines) files in a single folder
-* One or more articles in a single JSONL(ines) file
-* One article per JSON object
-* Each JSON object on a single line
-* Text free of xml.
+* The full corpus consisting of one or more TXT files in a single folder
+* One or more articles in a single TXT file
+* Each article will have a header in the form "--- {id} ---"
+* Each article will have its abstract and body extracted
+* One sentence per line
+* Paragraphs are separated by a blank line
 
 # Operation
 
@@ -21,87 +22,77 @@ I.E.
 
 You can install the package using the following steps:
 
-1. `pip` install using an _admin_ prompt.
-   ```{ps1}
-   pip uninstall oas
-   python -OO -m pip install -v git+https://github.com/TextCorpusLabs/oas.git
-   python -c "import nltk;nltk.download('punkt')"
-   ```
+`pip` install using an _admin_ prompt.
+
+```{ps1}
+pip uninstall oas
+python -OO -m pip install -v git+https://github.com/TextCorpusLabs/oas.git
+```
+
+or if you have the code local
+
+```{ps1}
+pip uninstall oas
+python -OO -m pip install -v c:/repos/TextCorpusLabs/oas
+```
 
 ## Run
 
-You can run the package in the following ways:
+You are responsible for getting the source files.
+They can be found on this [FTP site](ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/oa_bulk/).
+You will need to further navigate into the three sub-folders: oa_comm, oa_noncomm, and oa_other.
+I recommend using [FileZilla](https://filezilla-project.org/).
+I installed my copy using [Chocolatey](https://community.chocolatey.org/packages/filezilla).
 
-1. Download all files associated with PMC's OAS data dump.
-   **NOTE**: the files are both tar'ed and gz'iped.
-   You will need to extract them if you want to use the other tools.
-   ```{ps1}   
-   oas download -dest d:/oas/dl
+You are responsible for un-compressing and validating the source files.
+I recommend using [7zip](https://www.7-zip.org/).
+I installed my copy using [Chocolatey](https://community.chocolatey.org/packages/7zip).
 
-   $7z = 'C:/Program Files/7-Zip/7z.exe'
-   . $7z x -od:/oas/dl d:/oas/dl/*.gz -y
-   . $7z x -od:/oas/dl d:/oas/dl/*.tar -y
-   ``` 
-2. Convert PMC's OAS folders to a JSONL file containing all the articles minus any markup.
-   Each JSONL file may contain more than one article.
-   ```{ps1}
-   oas convert -source d:/oas/raw -dest d:/oas/conv
-   ```
-   The following are optional parameters
-   * `dest_pattern` is the format of the JSON file name.
-     It defaults to `oas.{id:03}.jsonl`
-   * `count` is the number of JATS files in a single JSON file.
-     This is useful to prevent any one single file from exploding in size.
-     The default is `25000`
-3. Tokenize JSON files using a modified Punkt/TreeBank processor.
-   This will create one tokenized file per one base file
-   ```{ps1}
-   oas tokenize -source d:/oas/conv -dest d:/oas/tok
-   ```
-   The following is an optional parameter
-   * `dest_pattern` is the format of the JSON file name.
-     It defaults to `{name}.tokenized.jsonl`
+The reason you are responsible is because the server the NIH keeps the files on is fickle.
+Sometimes it will serve corrupted files.
+Those files need re-downloaded and re-verified, then the file inside (the files are .tar.gz) needs verified too.
+OAS is also **HUGE**.
+As of 2023/01/11 it is over 400 GB in .tar form.
+You must make sure you have enough space before you start.
 
-# Development
+All the below commands assume the corpus is a folder of .tar files.
 
-## Prerequisites
+1. Extracts the metadata from the corpus.
 
-Install the required modules for each of the repositories.
+```{ps1}
+oas metadata -source d:/data/oas -dest d:/data/oas.meta.csv
+```
 
-1. Clone this repository then open an _Admin_ shell to the `~/` directory.
-2. Install the required modules.
-   ```{shell}
-   pip uninstall oas
-   pip install -e c:/repos/TextCorpusLabs/oas
-   ```
-3. Setup the `~/.vscode/launch.json` file (VS Code only)
-   1. Click the "Run and Debug Charm"
-   2. Click the "create a launch.json file" link
-   3. Select "Python"
-   4. Select "module" and enter _oas_
-   5. Select one of the following modes and add the below `args` to the launch.json file.
-      The `args` node should be a sibling of the `module` node.
-      They may need to be changed for your pathing.
-      1. Download
-         ```{json}
-         "args" : [
-           "download",
-           "-dest", "d:/oas/gz"]
-         ```
-      2. Conversion
-         ```{json}
-         "args" : [
-           "convert",
-           "-source", "d:/oas/raw",
-           "-dest", "d:/oas/conv",
-           "-dest_pattern", "oas.{id:03}.jsonl",
-           "-count", "25000"]
-         ```
-      3. Tokenize
-         ```{json}
-         "args" : [
-           "tokenize",
-           "-source", "d:/oas/raw",
-           "-dest", "d:/oas/tok",
-           "-dest_pattern", "{name}.tokenized.jsonl"]
-         ```
+The following are required parameters:
+
+* `source` is the folder containing the .tar'ed JATS files.
+* `dest` is the CSV file used to store the metadata.
+
+2. Convert the data to our standard format.
+
+```{ps1}
+oas convert -source d:/data/oas -dest d:/data/oas.std
+```
+
+The following are required parameters:
+
+* `source` is the folder containing the .tar'ed JATS files.
+* `dest` is the folder for the converted TXT files.
+
+The following are optional parameters:
+
+* `count` is the number of articles per TXT file.
+  The default is 25000.
+* `dest_pattern` is the format of the TXT file name.
+  It defaults to `oas.{id:04}.txt`
+
+## Debug/Test
+
+The code in this repo is setup as a module.
+[Debugging](https://code.visualstudio.com/docs/python/debugging#_module) and [testing](https://code.visualstudio.com/docs/python/testing) are based on the assumption that the module is already installed.
+In order to debug (F5) or run the tests (Ctrl + ; Ctrl + A), make sure to install the module as editable (see below).
+
+```{ps1}
+pip uninstall oas
+python -m pip install -e c:/repos/TextCorpusLabs/oas
+```

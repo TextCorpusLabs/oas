@@ -1,51 +1,41 @@
 import pathlib
 import sys
 from argparse import ArgumentParser, Namespace
-from oas.mode import convert, download, tokenize
+from .dtypes import Convert as settings_conv, Metadata as settings_meta
+from .modes import Convert as app_conv, Metadata as app_meta
 
 def main() -> None:
     parser = ArgumentParser(prog = 'oas', description = "Tools to work with PMC's OAS data")
     subparsers = parser.add_subparsers(help = 'sub-commands')    
-    convert_parser(subparsers.add_parser('convert', help = "Convert PMC's OAS folders to a JSONL file containing all the articles minus any markup"))
-    download_parser(subparsers.add_parser('download', help = "Download all files associated with PMC's OAS data dump"))
-    tokenize_parser(subparsers.add_parser('tokenize', help = "Tokenize JSON files using a modified Punkt/TreeBank processor"))
+    metadata_parser(subparsers.add_parser('metadata', help = "Extracts the metadata from the corpus"))
+    convert_parser(subparsers.add_parser('convert', help = "Convert the data to our standard format"))
     args = parser.parse_args()
     print_args(args)
     args.run(args)
 
+def metadata_parser(parser: ArgumentParser) -> None:
+    def run(args: Namespace) -> None:
+        set = settings_meta(args.source, args.dest)
+        app = app_meta(set)
+        app.init()
+        app.run()
+    parser.add_argument('-source', type = pathlib.Path, required = True, help = "The folder containing the .tar'ed JATS files.")
+    parser.add_argument('-dest', type = pathlib.Path, required = True, help = "The CSV file used to store the metadata")
+    parser.set_defaults(run = run)
+    parser.set_defaults(cmd = 'metadata')
+
 def convert_parser(parser: ArgumentParser) -> None:
     def run(args: Namespace) -> None:
-        convert(args.source, args.dest, args.dest_pattern, args.count)
-    parser.add_argument('-source', type = ensure_folder, required = True, help = 'The root folder of the folders containing JATS files')
-    parser.add_argument('-dest', type = ensure_folder, required = True, help = 'The folder to store the converted JSON files')
-    parser.add_argument('-dest_pattern',  type = str, default = 'oas.{id:03}.jsonl', help = 'The format of the JSON file name')
-    parser.add_argument('-count', type = int, default = 25000, help = 'The number of JATS files in a single JSON file')
+        set = settings_conv(args.source, args.dest, args.count, args.dest_pattern)
+        app = app_conv(set)
+        app.init()
+        app.run()
+    parser.add_argument('-source', type = pathlib.Path, required = True, help = 'The folder to the base JSON files')
+    parser.add_argument('-dest', type = pathlib.Path, required = True, help = 'The folder for the converted TXT files')
+    parser.add_argument('-count', type = int, default = 25000, help = 'The number of articles per TXT file')
+    parser.add_argument('-dest_pattern',  type = str, default = 'oas.{id:04}.txt', help = 'The format of the TXT file name')
     parser.set_defaults(run = run)
     parser.set_defaults(cmd = 'convert')
-
-def download_parser(parser: ArgumentParser) -> None:
-    def run(args: Namespace) -> None:
-        print('TODO: PMC changed their format.')
-    parser.add_argument('-dest', type = ensure_folder, required = True, help = 'The destination location to use when saving the files')
-    parser.set_defaults(run = run)
-    parser.set_defaults(cmd = 'download')
-
-def tokenize_parser(parser: ArgumentParser) -> None:
-    def run(args: Namespace) -> None:
-        print('TODO: package conversion in progress.')
-    parser.add_argument('-source', type = ensure_folder, required = True, help = 'The folder to the base JSON files')
-    parser.add_argument('-dest', type = ensure_folder, required = True, help = 'The folder for the JSON files the include the tokenized results')
-    parser.add_argument('-dest_pattern',  type = str, default = '{name}.tokenized.jsonl', help = 'The format of the JSON file name')
-    parser.set_defaults(run = run)
-    parser.set_defaults(cmd = 'tokenize')
-
-def ensure_folder(folder_path: str) -> pathlib.Path:
-    folder= pathlib.Path(folder_path).resolve()
-    if not folder.exists():
-        folder.mkdir(parents = True)
-    elif not folder.is_dir():
-        raise NotADirectoryError(str(folder))
-    return folder
 
 def print_args(args: Namespace) -> None:
     print(f'--- {args.cmd} ---')
