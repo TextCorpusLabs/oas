@@ -1,4 +1,5 @@
 from ..dtypes import Metadata as settings
+from .. import utils
 
 class Metadata:
 
@@ -15,6 +16,13 @@ class Metadata:
 
     def init(self) -> None:
         self._settings.validate()
+        if self._settings.dest.exists():
+            self._settings.dest.unlink()
 
     def run(self) -> None:
-        print('TODO: package conversion in progress.')
+        source_files = (path for path in utils.list_folder_tar_balls(self._settings.source))
+        doc_collections = (utils.list_documents(file) for file in source_files)
+        docs = (x for y in doc_collections for x in y)
+        docs = utils.progress_overlay(docs, 'Reading document #')
+        xxx = list(docs)
+        
