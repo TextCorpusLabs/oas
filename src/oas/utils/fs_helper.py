@@ -2,7 +2,6 @@ import pathlib
 import tarfile as tf
 import typing as t
 
-
 def list_folder_tar_balls(folder_in: pathlib.Path) -> t.Iterator[pathlib.Path]:
     """
     Lists the tar balls in the folder
@@ -32,10 +31,15 @@ def list_documents(tarball: pathlib.Path) -> t.Iterator[str]:
     tarball : pathlib.Path
         The the tar ball
     """
+    def _is_pmc_file(info: tf.TarInfo) -> bool:
+        if info.isfile():
+            name = info.name.upper()
+            return name.startswith('PMC') and name.endswith('.XML')
+        return False
     with tf.open(tarball, 'r') as tar_ball:
         tar_info = tar_ball.next()
         while tar_info is not None:
-            if tar_info.isfile():
+            if _is_pmc_file(tar_info):
                 tar_file = tar_ball.extractfile(tar_info)
                 if tar_file is not None:
                     stream = tar_file.read()
