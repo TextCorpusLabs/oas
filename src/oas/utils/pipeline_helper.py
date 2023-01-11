@@ -26,7 +26,7 @@ def _parse_xml_safe(document: str) -> t.Optional[etree.Element]:
     try:
         return _parse_xml(document)
     except:
-        print(f'--- ERROR ---\nCould not parse document\n{document}')
+        print(f'ERROR: Could not parse document {document}')
 
 def _parse_xml(xml: str) -> etree.Element:
     """
@@ -43,4 +43,4 @@ def _extractor_safe(name: str, extractor: Extractor, root: etree.Element) -> t.O
     try:
         return extractor(root)
     except:
-        print(f'--- ERROR ---\nCould not extract {name}')
+        print(f'ERROR: Could not extract {name}')
