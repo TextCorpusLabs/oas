@@ -30,11 +30,20 @@ class Metadata:
         docs = utils.progress_overlay(docs, 'Reading document #')
         articles = utils.extract_articles(docs, fields)
         articles = utils.stream_csv(self._settings.dest, field_names, articles)
-        for _ in articles:
-            pass
+        for _ in articles: pass
     
     @staticmethod
     def _field_selection() -> t.Dict[str, Extractor]:
         fields = {}
         fields['id'] = utils.extract_id
+        fields['journal'] = utils.extract_journal
+        fields['volume'] = utils.extract_volume
+        fields['issue'] = utils.extract_issue
+        fields['year'] = utils.extract_year
+        fields['category'] = utils.extract_category        
+        fields['doi'] = utils.extract_doi
+        fields['issn'] = utils.extract_issn
+        fields['authors'] = utils.extract_authors
+        fields['title'] = utils.extract_title
+        fields['references'] = utils.extract_references
         return fields
