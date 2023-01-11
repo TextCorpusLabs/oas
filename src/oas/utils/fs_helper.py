@@ -1,6 +1,8 @@
+import csv
 import pathlib
 import tarfile as tf
 import typing as t
+from ..dtypes import Article
 
 def list_folder_tar_balls(folder_in: pathlib.Path) -> t.Iterator[pathlib.Path]:
     """
@@ -46,3 +48,27 @@ def list_documents(tarball: pathlib.Path) -> t.Iterator[str]:
                     document = stream.decode('utf-8')
                     yield document
             tar_info = tar_ball.next()
+
+def stream_csv(dest: pathlib.Path, fields: t.List[str], articles: t.Iterator[Article]) -> t.Iterator[Article]:
+    """
+    Saves the documents to CSV
+    
+    Parameters
+    ----------
+    dest : pathlib.Path
+        The CSV file containing all the documents
+    fields : List[str]
+        The name(s) of the elements to fields
+    articles : Iterator[Article]
+        The `Article`s to save
+    """
+    with open(dest, 'w', encoding = 'utf-8', newline = '') as fp:
+        writer = csv.writer(fp, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_ALL)    
+        writer.writerow(fields)
+        for article in articles:
+            row = [None] * len(fields)
+            for i in range(0, len(fields)):
+                if fields[i] in article:
+                    row[i] = article[fields[i]]
+            writer.writerow(row)
+            yield article
