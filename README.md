@@ -68,6 +68,11 @@ The following are required parameters:
 * `source` is the folder containing the .tar'ed JATS files.
 * `dest` is the CSV file used to store the metadata.
 
+The following are optional parameters:
+
+* `log` is the folder of raw JATS files that did not process.
+  It defaults to empty (not saved).
+
 2. Convert the data to our standard format.
 
 ```{ps1}
@@ -84,7 +89,9 @@ The following are optional parameters:
 * `count` is the number of articles per TXT file.
   The default is 25000.
 * `dest_pattern` is the format of the TXT file name.
-  It defaults to `oas.{id:04}.txt`
+  It defaults to `oas.{id:04}.txt`.
+* `log` is the folder of raw JATS files that did not process.
+  It defaults to empty (not saved).
 
 ## Debug/Test
 

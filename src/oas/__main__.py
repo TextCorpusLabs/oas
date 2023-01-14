@@ -15,18 +15,19 @@ def main() -> None:
 
 def metadata_parser(parser: ArgumentParser) -> None:
     def run(args: Namespace) -> None:
-        set = settings_meta(args.source, args.dest)
+        set = settings_meta(args.source, args.dest, args.log)
         app = app_meta(set)
         app.init()
         app.run()
     parser.add_argument('-source', type = pathlib.Path, required = True, help = "The folder containing the .tar'ed JATS files.")
     parser.add_argument('-dest', type = pathlib.Path, required = True, help = "The CSV file used to store the metadata")
+    parser.add_argument('-log', type = pathlib.Path, required = True, help = 'The folder of raw JATS files that did not process')
     parser.set_defaults(run = run)
     parser.set_defaults(cmd = 'metadata')
 
 def convert_parser(parser: ArgumentParser) -> None:
     def run(args: Namespace) -> None:
-        set = settings_conv(args.source, args.dest, args.count, args.dest_pattern)
+        set = settings_conv(args.source, args.dest, args.count, args.dest_pattern, args.log)
         app = app_conv(set)
         app.init()
         app.run()
@@ -34,6 +35,7 @@ def convert_parser(parser: ArgumentParser) -> None:
     parser.add_argument('-dest', type = pathlib.Path, required = True, help = 'The folder for the converted TXT files')
     parser.add_argument('-count', type = int, default = 25000, help = 'The number of articles per TXT file')
     parser.add_argument('-dest_pattern',  type = str, default = 'oas.{id:04}.txt', help = 'The format of the TXT file name')
+    parser.add_argument('-log', type = pathlib.Path, required = True, help = 'The folder of raw JATS files that did not process')
     parser.set_defaults(run = run)
     parser.set_defaults(cmd = 'convert')
 
