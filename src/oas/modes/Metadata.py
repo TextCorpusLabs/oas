@@ -28,9 +28,13 @@ class Metadata:
         doc_collections = (utils.list_documents(file) for file in source_files)
         docs = (x for y in doc_collections for x in y)
         docs = utils.progress_overlay(docs, 'Reading document #')
-        articles = utils.extract_articles(docs, fields)
+        articles = utils.extract_articles(docs, fields, self.bad_extract_log)
         articles = utils.stream_csv(self._settings.dest, field_names, articles)
         for _ in articles: pass
+
+    def bad_extract_log(self, message: str) -> None:
+        if self._settings.log is not None:
+            utils.write_log(self._settings.log, message)            
     
     @staticmethod
     def _field_selection() -> t.Dict[str, Extractor]:
