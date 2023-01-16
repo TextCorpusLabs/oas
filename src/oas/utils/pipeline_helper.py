@@ -12,7 +12,6 @@ def extract_articles(documents: t.Iterator[str], fields: t.Dict[str, Extractor],
         except ProcessError as error:
             log(error)
 
-
 def _extract_article(document: str, fields: t.Dict[str, Extractor]) -> Article:
     try:
         root =  _parse_xml(document)
@@ -31,11 +30,16 @@ def _extract_article(document: str, fields: t.Dict[str, Extractor]) -> Article:
 
 def _parse_xml(xml: str) -> etree.Element:
     """
-    Most of the time the JATS XML will be missing the encoding declaration (<?xml version="1.0" encoding="UTF-8"?>).
-    This is desirable as `etree.fromstring()` does not like it.
-    When it is included, case it to bytes first then continue processing per https://stackoverflow.com/questions/57833080
+    PMC _almost_ always has a good JATS file saved. When this is not the case, try various fallbacks.
+    * The XML includes the encoding declaration (<?xml version="1.0" encoding="UTF-8"?>).
+      Cast it to bytes first then continue processing per https://stackoverflow.com/questions/57833080
+    * The XML is malformed (I.E. missing "xmlns:xlink")
+      Use the recover parser per https://stackoverflow.com/questions/8888628
     """
     try:
         return etree.fromstring(xml)
     except ValueError:
         return etree.fromstring(bytes(xml, encoding = 'utf-8'))
+    except etree.XMLSyntaxError:
+        parser = etree.XMLParser(recover = True)
+        return etree.fromstring(xml, parser)
