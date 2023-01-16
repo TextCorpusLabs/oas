@@ -1,5 +1,7 @@
+import csv
+import pathlib
 import typing as t
-from ..dtypes import Extractor, ProcessError
+from ..dtypes import Article, Extractor, ProcessError
 from ..dtypes import Metadata as settings
 from .. import utils
 
@@ -29,7 +31,7 @@ class Metadata:
         docs = (x for y in doc_collections for x in y)
         docs = utils.progress_overlay(docs, 'Reading document #')
         articles = utils.extract_articles(docs, fields, self._log_bad_extract)
-        articles = utils.stream_csv(self._settings.dest, field_names, articles)
+        articles = Metadata._stream_csv(self._settings.dest, field_names, articles)
         for _ in articles: pass
 
     def _log_bad_extract(self, error: ProcessError) -> None:
@@ -53,3 +55,16 @@ class Metadata:
         fields['title'] = utils.extract_title
         fields['references'] = utils.extract_references
         return fields
+
+    @staticmethod
+    def _stream_csv(dest: pathlib.Path, fields: t.List[str], articles: t.Iterator[Article]) -> t.Iterator[Article]:
+        with open(dest, 'w', encoding = 'utf-8', newline = '') as fp:
+            writer = csv.writer(fp, delimiter = ',', quotechar = '"', quoting = csv.QUOTE_ALL)    
+            writer.writerow(fields)
+            for article in articles:
+                row = [None] * len(fields)
+                for i in range(0, len(fields)):
+                    if fields[i] in article:
+                        row[i] = article[fields[i]]
+                writer.writerow(row)
+                yield article

@@ -14,6 +14,5 @@ from .extract_helper import extract_references as extract_references
 from .fs_helper import list_folder_tar_balls as list_folder_tar_balls
 from .fs_helper import list_documents as list_documents
 from .fs_helper import write_log as write_log
-from .fs_helper import stream_csv as stream_csv
 from .pipeline_helper import extract_articles as extract_articles
 from .progress_helper import progress_overlay as progress_overlay
