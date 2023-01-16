@@ -1,5 +1,5 @@
 import typing as t
-from ..dtypes import Extractor
+from ..dtypes import Extractor, ProcessError
 from ..dtypes import Metadata as settings
 from .. import utils
 
@@ -28,13 +28,15 @@ class Metadata:
         doc_collections = (utils.list_documents(file) for file in source_files)
         docs = (x for y in doc_collections for x in y)
         docs = utils.progress_overlay(docs, 'Reading document #')
-        articles = utils.extract_articles(docs, fields, self.bad_extract_log)
+        articles = utils.extract_articles(docs, fields, self._log_bad_extract)
         articles = utils.stream_csv(self._settings.dest, field_names, articles)
         for _ in articles: pass
 
-    def bad_extract_log(self, message: str) -> None:
-        if self._settings.log is not None:
-            utils.write_log(self._settings.log, message)            
+    def _log_bad_extract(self, error: ProcessError) -> None:
+        if self._settings.log is None:
+            print(f"Error: {','.join(error.issues)}")
+        else:
+            utils.write_log(self._settings.log, error)
     
     @staticmethod
     def _field_selection() -> t.Dict[str, Extractor]:
@@ -44,7 +46,7 @@ class Metadata:
         fields['volume'] = utils.extract_volume
         fields['issue'] = utils.extract_issue
         fields['year'] = utils.extract_year
-        fields['category'] = utils.extract_category        
+        fields['category'] = utils.extract_category
         fields['doi'] = utils.extract_doi
         fields['issn'] = utils.extract_issn
         fields['authors'] = utils.extract_authors

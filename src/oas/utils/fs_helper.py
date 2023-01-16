@@ -3,7 +3,7 @@ import pathlib
 import tarfile as tf
 import typing as t
 import uuid
-from ..dtypes import Article
+from ..dtypes import Article, ProcessError
 
 def list_folder_tar_balls(folder_in: pathlib.Path) -> t.Iterator[pathlib.Path]:
     """
@@ -74,7 +74,7 @@ def stream_csv(dest: pathlib.Path, fields: t.List[str], articles: t.Iterator[Art
             writer.writerow(row)
             yield article
 
-def write_log(log: pathlib.Path, message: str) -> None:
+def write_log(log: pathlib.Path, error: ProcessError) -> None:
     """
     Writes out a message as a single file
 
@@ -82,9 +82,10 @@ def write_log(log: pathlib.Path, message: str) -> None:
     ----------
     log : pathlib.Path
         The folder of raw messages
-    message : str
-        The message itself
+    error : ProcessError
+        The error itself
     """
-    path = log.joinpath(f'PMC.{uuid.uuid4()}.xml')
+    issue = ''.join([tok.capitalize() for tok in error.issues[0].split(' ')])
+    path = log.joinpath(f'PMC.{issue}.{uuid.uuid4()}.xml')
     with open(path, 'w', encoding = 'utf-8', newline = '') as fp:
-        fp.write(message)
+        fp.write(error.document)

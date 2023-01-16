@@ -1,28 +1,33 @@
 import typing as t
-from ..dtypes import Article, Extractor
+from ..dtypes import Article, Extractor, ProcessError
 from lxml import etree # type: ignore
 
-def extract_articles(documents: t.Iterator[str], fields: t.Dict[str, Extractor], log: t.Callable[[str], None]) -> t.Iterator[Article]:
+def extract_articles(documents: t.Iterator[str], fields: t.Dict[str, Extractor], log: t.Callable[[ValueError], None]) -> t.Iterator[Article]:
     """
     Extracts an article's named fields from the string representation
     """
     for document in documents:
-        article = _extract_article_safe(document, fields, log)
-        if article is not None:
-            yield article
+        try:
+            yield _extract_article(document, fields)
+        except ProcessError as error:
+            log(error)
 
-def _extract_article_safe(document: str, fields: t.Dict[str, Extractor], log: t.Callable[[str], None]) -> t.Optional[Article]:
+
+def _extract_article(document: str, fields: t.Dict[str, Extractor]) -> Article:
     try:
-        return _extract_article(document, fields)
-    except:
-        log(document)
-
-def _extract_article(document: str, fields: t.Dict[str, Extractor]) -> t.Optional[Article]:
-    root = _parse_xml(document)
-    art: Article = {}
+        root =  _parse_xml(document)
+    except Exception as exception:
+        raise ProcessError(document, ['Bad XML']) from exception
+    article: Article = {}
+    missing: t.List[str] = []
     for name, extractor in fields.items():
-        art[name] = extractor(root)
-    return art
+        try:
+            article[name] = extractor(root)
+        except:
+            missing.append(name)
+    if len(missing) > 0:
+        raise ProcessError(document, [f'Missing {name}' for name in missing])
+    return article
 
 def _parse_xml(xml: str) -> etree.Element:
     """
