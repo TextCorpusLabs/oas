@@ -23,7 +23,7 @@ def extract_issue(root: etree.Element) -> t.Optional[str]:
 
 def extract_category(root: etree.Element) -> t.Optional[str]:
     xpath = "./front/article-meta/article-categories//subject"
-    value = _ncs(';'.join(map(_nct, root.xpath(xpath))))
+    value = _ncs(';'.join([x for x in map(_nct, root.xpath(xpath)) if x is not None]))
     return value
 
 def extract_doi(root: etree.Element) -> t.Optional[str]:
@@ -38,7 +38,7 @@ def extract_year(root: etree.Element) -> t.Optional[int]:
 
 def extract_issn(root: etree.Element) -> t.Optional[str]:
     xpath = './front/journal-meta/issn'
-    value = _ncs(';'.join(map(_nct, root.xpath(xpath))))
+    value = _ncs(';'.join([x for x in map(_nct, root.xpath(xpath)) if x is not None]))
     return value
 
 def extract_authors(root: etree.Element) -> t.Optional[str]:
