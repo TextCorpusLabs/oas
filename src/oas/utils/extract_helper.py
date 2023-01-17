@@ -1,6 +1,8 @@
 import typing as t
 from lxml import etree # type: ignore
 
+_translate = str.maketrans({'“':'"', '”':'"', "‘":"'", "’":"'", "`":"'"})
+
 def extract_id(root: etree.Element) -> t.Optional[str]:
     xpath = "./front/article-meta/article-id[@pub-id-type='pmc']"
     value = _nct(root.find(xpath))
@@ -72,10 +74,8 @@ def _nct(obj: etree.Element) -> t.Optional[str]:
     """
     if obj is None:
         return None
-    elif obj.text is None:
-        return None
     else:
-        return obj.text.strip()
+        return _ncs(obj.text)
 
 def _ncs(txt: t.Optional[str]) -> t.Optional[str]:
     """
@@ -84,23 +84,24 @@ def _ncs(txt: t.Optional[str]) -> t.Optional[str]:
     if txt is None:
         return None
     else:
-        txt = txt.strip()
+        txt = _clean_str(txt)
         if len(txt) == 0:
             return None
         else:
             return txt
 
-def _ncls(list_: t.Optional[t.List[str]]) -> t.Optional[t.List[str]]:
+def _ncls(list: t.Optional[t.List[str]]) -> t.Optional[t.List[str]]:
     """
     Simple null-conditional macro
     """
-    if list_ is None:
+    if list is None:
         return None
     else:
-        if len(list_) == 0:
+        if len(list) == 0:
             return None
         else:
-            return list_
+            working = (_ncs(item) for item in list)
+            return [item for item in working if item is not None]
 
 def _extract_author_name(node: etree.Element) -> str:
     """
@@ -129,3 +130,8 @@ def _extract_paragraphs(root: etree.Element, xpaths: t.List[str]) -> t.List[str]
         if len(result) > 0:
             return result
     return []
+
+def _clean_str(text: str) -> str:
+    working = ' '.join(text.split())
+    working = working.translate(_translate)
+    return working
