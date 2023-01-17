@@ -2,7 +2,7 @@ import pathlib
 
 class Convert:
 
-    def __init__(self, source: pathlib.Path, dest: pathlib.Path, count: int, dest_pattern: str, log: pathlib.Path):
+    def __init__(self, source: pathlib.Path, dest: pathlib.Path, lines: int, dest_pattern: str, log: pathlib.Path):
         """
         Settings for convert process
 
@@ -12,8 +12,8 @@ class Convert:
             The folder containing the .tar'ed JATS files
         dest : pathlib.Path
             The folder for the converted TXT files
-        count: int
-            The number of articles per TXT file
+        lines: int
+            The number of lines per TXT file
         dest_pattern: str
             The format of the TXT file name.
         log: pathlib.Path
@@ -21,7 +21,7 @@ class Convert:
         """
         self._source = source
         self._dest = dest
-        self._count = count
+        self._lines = lines
         self._dest_pattern = dest_pattern
         self._log = log
 
@@ -32,8 +32,8 @@ class Convert:
     def dest(self) -> pathlib.Path:
         return self._dest
     @property
-    def count(self) -> int:
-        return self._count
+    def lines(self) -> int:
+        return self._lines
     @property
     def dest_pattern(self) -> str:
         return self._dest_pattern
@@ -55,6 +55,6 @@ class Convert:
                 raise ValueError(f'{val} must be > 0')
         _folder(self._source)
         _folder(self._dest)
-        _nonzero_int(self._count)
+        _nonzero_int(self._lines)
         if self._log is not None:
             _folder(self._log)

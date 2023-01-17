@@ -86,10 +86,12 @@ The following are required parameters:
 
 The following are optional parameters:
 
-* `count` is the number of articles per TXT file.
-  The default is 25000.
+* `lines` is the number of lines per TXT file.
+  The default is 250000.
 * `dest_pattern` is the format of the TXT file name.
-  It defaults to `oas.{id:04}.txt`.
+  It defaults to `{source}.{id:04}.txt`.
+  `source` is the source file name's stem.
+  `id` is an increasing value that increments after `lines` are stored in a file. 
 * `log` is the folder of raw JATS files that did not process.
   It defaults to empty (not saved).
 

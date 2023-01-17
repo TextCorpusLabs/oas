@@ -27,14 +27,14 @@ def metadata_parser(parser: ArgumentParser) -> None:
 
 def convert_parser(parser: ArgumentParser) -> None:
     def run(args: Namespace) -> None:
-        set = settings_conv(args.source, args.dest, args.count, args.dest_pattern, args.log)
+        set = settings_conv(args.source, args.dest, args.lines, args.dest_pattern, args.log)
         app = app_conv(set)
         app.init()
         app.run()
     parser.add_argument('-source', type = pathlib.Path, required = True, help = 'The folder to the base JSON files')
     parser.add_argument('-dest', type = pathlib.Path, required = True, help = 'The folder for the converted TXT files')
-    parser.add_argument('-count', type = int, default = 25000, help = 'The number of articles per TXT file')
-    parser.add_argument('-dest_pattern',  type = str, default = 'oas.{id:04}.txt', help = 'The format of the TXT file name')
+    parser.add_argument('-lines', type = int, default = 250000, help = 'The number of lines per TXT file')
+    parser.add_argument('-dest_pattern',  type = str, default = '{source}.{id:04}.txt', help = 'The format of the TXT file name')
     parser.add_argument('-log', type = pathlib.Path, help = 'The folder of raw JATS files that did not process')
     parser.set_defaults(run = run)
     parser.set_defaults(cmd = 'convert')
