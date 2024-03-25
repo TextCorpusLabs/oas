@@ -11,7 +11,12 @@ I.E.
 
 * The full corpus consisting of one or more TXT files in a single folder
 * One or more articles in a single TXT file
-* Each article will have a header in the form "--- {id} ---"
+* Each article will have a header in the form:
+  ```
+  --- {id} ---
+  --- {journal} ---
+  --- {title} ---
+  ```
 * Each article will have its abstract and body extracted
 * One sentence per line
 * Paragraphs are separated by a blank line
