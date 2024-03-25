@@ -42,6 +42,7 @@ class Convert:
     def _field_selection() -> t.Dict[str, Extractor]:
         fields = {}
         fields['id'] = utils.extract_id
+        fields['journal'] = utils.extract_journal
         fields['title'] = utils.extract_title
         fields['abstract'] = utils.extract_abstract
         fields['body'] = utils.extract_body
@@ -72,7 +73,8 @@ class Convert:
     @staticmethod
     def _flatten_article(article: Article) -> t.Iterator[str]:
         yield f"--- {article['id']} ---"
-        yield article['title']
+        yield f"--- {article['journal']} ---"
+        yield f"--- {article['title']} ---"
         yield ""
         if article['abstract'] is not None:
             for paragraph in article['abstract']:
@@ -98,8 +100,3 @@ class Convert:
                     st = i + 1
         if st < len(words):
             yield ' '.join(words[st:len(text)])
-
-
-
-
-
