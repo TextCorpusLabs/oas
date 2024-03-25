@@ -1,8 +1,9 @@
 import pathlib
+import typing as t
 
 class Metadata:
 
-    def __init__(self, source: pathlib.Path, dest: pathlib.Path, log: pathlib.Path):
+    def __init__(self, source: pathlib.Path, dest: pathlib.Path, log: t.Optional[pathlib.Path]):
         """
         Settings for metadata process
 
@@ -26,7 +27,7 @@ class Metadata:
     def dest(self) -> pathlib.Path:
         return self._dest
     @property
-    def log(self) -> pathlib.Path:
+    def log(self) -> t.Optional[pathlib.Path]:
         return self._log
 
     def validate(self) -> None:

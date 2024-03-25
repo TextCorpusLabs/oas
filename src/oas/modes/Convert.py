@@ -50,7 +50,7 @@ class Convert:
 
     @staticmethod
     def _flatten_and_save(file_pattern: str, count: int, articles: t.Iterator[Article]) -> None:
-        fp: TextIOWrapper = None
+        fp: t.Optional[TextIOWrapper] = None
         fp_i: int = 0
         fp_lines: int = 0
         for article in articles:
@@ -76,12 +76,12 @@ class Convert:
         yield f"--- {article['journal']} ---"
         yield f"--- {article['title']} ---"
         yield ""
-        if article['abstract'] is not None:
+        if 'abstract' in article and isinstance(article['abstract'], list):
             for paragraph in article['abstract']:
                 for sentence in Convert._split_sentences(paragraph):
                     yield sentence
                 yield ""
-        if article['body'] is not None:
+        if 'body' in article and isinstance(article['body'], list):
             for paragraph in article['body']:
                 for sentence in Convert._split_sentences(paragraph):
                     yield sentence

@@ -1,8 +1,9 @@
 import pathlib
+import typing as t
 
 class Convert:
 
-    def __init__(self, source: pathlib.Path, dest: pathlib.Path, lines: int, dest_pattern: str, log: pathlib.Path):
+    def __init__(self, source: pathlib.Path, dest: pathlib.Path, lines: int, dest_pattern: str, log: t.Optional[pathlib.Path]):
         """
         Settings for convert process
 
@@ -38,7 +39,7 @@ class Convert:
     def dest_pattern(self) -> str:
         return self._dest_pattern
     @property
-    def log(self) -> pathlib.Path:
+    def log(self) -> t.Optional[pathlib.Path]:
         return self._log
 
     def validate(self) -> None:

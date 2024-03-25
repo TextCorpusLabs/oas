@@ -52,7 +52,7 @@ The reason you are responsible is because the server the NIH keeps the files on 
 Sometimes it will serve corrupted files.
 Those files need re-downloaded and re-verified, then the file inside (the files are .tar.gz) needs verified too.
 OAS is also **HUGE**.
-As of 2023/01/11 it is over 400 GB in .tar form.
+As of 2024/03/25 it is almost 500 GB in .tar form.
 You must make sure you have enough space before you start.
 
 All the below commands assume the corpus is a folder of .tar files.
@@ -60,7 +60,7 @@ All the below commands assume the corpus is a folder of .tar files.
 1. Extracts the metadata from the corpus.
 
 ```{ps1}
-oas metadata -source d:/data/oas -dest d:/data/oas.meta.csv
+oas metadata -source c:/data/oas -dest c:/data/oas.meta.csv
 ```
 
 The following are required parameters:
@@ -76,7 +76,7 @@ The following are optional parameters:
 2. Convert the data to our standard format.
 
 ```{ps1}
-oas convert -source d:/data/oas -dest d:/data/oas.std
+oas convert -source c:/data/oas -dest c:/data/oas.std
 ```
 
 The following are required parameters:

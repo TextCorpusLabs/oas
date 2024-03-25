@@ -2,7 +2,7 @@ import typing as t
 from ..dtypes import Article, Extractor, ProcessError
 from lxml import etree # type: ignore
 
-def extract_articles(documents: t.Iterator[str], fields: t.Dict[str, Extractor], log: t.Callable[[ValueError], None]) -> t.Iterator[Article]:
+def extract_articles(documents: t.Iterator[str], fields: t.Dict[str, Extractor], log: t.Callable[[ProcessError], None]) -> t.Iterator[Article]:
     """
     Extracts an article's named fields from the string representation
     """
